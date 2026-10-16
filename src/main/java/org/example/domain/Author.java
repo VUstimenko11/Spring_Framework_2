@@ -1,10 +1,25 @@
 package org.example.domain;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import org.hibernate.annotations.BatchSize;
+
 import java.util.Objects;
 
+@Entity
+@Table(name = "authors")
+@BatchSize(size = 10)
 public class Author {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "full_name", nullable = false)
     private String fullName;
 
     public Author() {

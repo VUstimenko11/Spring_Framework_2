@@ -1,11 +1,11 @@
-package org.example.dao;
+package org.example.repository;
 
 import org.example.domain.Genre;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface GenreDao {
+public interface GenreRepository {
 
     Genre insert(Genre genre);
 

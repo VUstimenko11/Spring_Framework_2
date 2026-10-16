@@ -1,4 +1,4 @@
-package org.example.dao;
+package org.example.repository;
 
 import org.example.domain.Author;
 import org.example.domain.Book;
@@ -6,31 +6,31 @@ import org.example.domain.Genre;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@JdbcTest
-@Import({BookDaoJdbc.class, AuthorDaoJdbc.class, GenreDaoJdbc.class})
-@DisplayName("BookDaoJdbc")
-class BookDaoJdbcTest {
+@DataJpaTest
+@Import({BookRepositoryJpa.class, AuthorRepositoryJpa.class, GenreRepositoryJpa.class})
+@DisplayName("BookRepositoryJpa")
+class BookRepositoryJpaTest {
 
     @Autowired
-    private BookDao bookDao;
+    private BookRepository bookRepository;
 
     @Autowired
-    private AuthorDao authorDao;
+    private AuthorRepository authorRepository;
 
     @Autowired
-    private GenreDao genreDao;
+    private GenreRepository genreRepository;
 
     @Test
     @DisplayName("should find all books with author and genre joined")
     void shouldFindAllBooksWithRelations() {
-        List<Book> books = bookDao.findAll();
+        List<Book> books = bookRepository.findAll();
 
         assertThat(books).hasSizeGreaterThanOrEqualTo(5);
         assertThat(books.get(0).getAuthor()).isNotNull();
@@ -42,7 +42,7 @@ class BookDaoJdbcTest {
     @Test
     @DisplayName("should find book by id with relations")
     void shouldFindBookById() {
-        Book book = bookDao.findById(1L).orElseThrow();
+        Book book = bookRepository.findById(1L).orElseThrow();
 
         assertThat(book.getTitle()).isEqualTo("War and Peace");
         assertThat(book.getAuthor().getFullName()).isEqualTo("Leo Tolstoy");
@@ -52,13 +52,13 @@ class BookDaoJdbcTest {
     @Test
     @DisplayName("should insert book")
     void shouldInsertBook() {
-        Author author = authorDao.findById(1L).orElseThrow();
-        Genre genre = genreDao.findById(1L).orElseThrow();
+        Author author = authorRepository.findById(1L).orElseThrow();
+        Genre genre = genreRepository.findById(1L).orElseThrow();
 
-        Book inserted = bookDao.insert(new Book(null, "Resurrection", author, genre));
+        Book inserted = bookRepository.insert(new Book(null, "Resurrection", author, genre));
 
         assertThat(inserted.getId()).isNotNull();
-        assertThat(bookDao.findById(inserted.getId()))
+        assertThat(bookRepository.findById(inserted.getId()))
                 .isPresent()
                 .get()
                 .extracting(Book::getTitle)
@@ -68,16 +68,16 @@ class BookDaoJdbcTest {
     @Test
     @DisplayName("should update book")
     void shouldUpdateBook() {
-        Author author = authorDao.findById(2L).orElseThrow();
-        Genre genre = genreDao.findById(2L).orElseThrow();
-        Book book = bookDao.insert(new Book(null, "Temp Title", author, genre));
+        Author author = authorRepository.findById(2L).orElseThrow();
+        Genre genre = genreRepository.findById(2L).orElseThrow();
+        Book book = bookRepository.insert(new Book(null, "Temp Title", author, genre));
 
         book.setTitle("Updated Title");
-        book.setAuthor(authorDao.findById(1L).orElseThrow());
-        book.setGenre(genreDao.findById(1L).orElseThrow());
-        bookDao.update(book);
+        book.setAuthor(authorRepository.findById(1L).orElseThrow());
+        book.setGenre(genreRepository.findById(1L).orElseThrow());
+        bookRepository.update(book);
 
-        Book updated = bookDao.findById(book.getId()).orElseThrow();
+        Book updated = bookRepository.findById(book.getId()).orElseThrow();
         assertThat(updated.getTitle()).isEqualTo("Updated Title");
         assertThat(updated.getAuthor().getId()).isEqualTo(1L);
         assertThat(updated.getGenre().getId()).isEqualTo(1L);
@@ -86,12 +86,12 @@ class BookDaoJdbcTest {
     @Test
     @DisplayName("should delete book by id")
     void shouldDeleteBook() {
-        Author author = authorDao.findById(1L).orElseThrow();
-        Genre genre = genreDao.findById(1L).orElseThrow();
-        Book book = bookDao.insert(new Book(null, "To Delete", author, genre));
+        Author author = authorRepository.findById(1L).orElseThrow();
+        Genre genre = genreRepository.findById(1L).orElseThrow();
+        Book book = bookRepository.insert(new Book(null, "To Delete", author, genre));
 
-        bookDao.deleteById(book.getId());
+        bookRepository.deleteById(book.getId());
 
-        assertThat(bookDao.findById(book.getId())).isEmpty();
+        assertThat(bookRepository.findById(book.getId())).isEmpty();
     }
 }

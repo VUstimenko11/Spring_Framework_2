@@ -1,9 +1,9 @@
 package org.example.service;
 
-import org.example.dao.BookDao;
 import org.example.domain.Author;
 import org.example.domain.Book;
 import org.example.domain.Genre;
+import org.example.repository.BookRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,22 +21,20 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @DisplayName("BookServiceImpl")
 class BookServiceImplTest {
 
-    private InMemoryBookDao bookDao;
+    private InMemoryBookRepository bookRepository;
     private StubAuthorService authorService;
     private StubGenreService genreService;
     private BookServiceImpl bookService;
 
     @BeforeEach
     void setUp() {
-        bookDao = new InMemoryBookDao();
+        bookRepository = new InMemoryBookRepository();
         authorService = new StubAuthorService();
         genreService = new StubGenreService();
-        bookService = new BookServiceImpl(bookDao, authorService, genreService);
+        bookService = new BookServiceImpl(bookRepository, authorService, genreService);
 
-        authorService.put(new Author(1L, "Leo Tolstoy"));
-        authorService.put(new Author(2L, "Dostoevsky"));
-        genreService.put(new Genre(1L, "Novel"));
-        genreService.put(new Genre(2L, "Drama"));
+        authorService.put(new Author(1L, "Leo Tolstoy"), new Author(2L, "Dostoevsky"));
+        genreService.put(new Genre(1L, "Novel"), new Genre(2L, "Drama"));
     }
 
     @Test
@@ -100,8 +98,10 @@ class BookServiceImplTest {
     private static final class StubAuthorService implements AuthorService {
         private final Map<Long, Author> authors = new ConcurrentHashMap<>();
 
-        void put(Author author) {
-            authors.put(author.getId(), author);
+        void put(Author... values) {
+            for (Author author : values) {
+                authors.put(author.getId(), author);
+            }
         }
 
         @Override
@@ -127,8 +127,10 @@ class BookServiceImplTest {
     private static final class StubGenreService implements GenreService {
         private final Map<Long, Genre> genres = new ConcurrentHashMap<>();
 
-        void put(Genre genre) {
-            genres.put(genre.getId(), genre);
+        void put(Genre... values) {
+            for (Genre genre : values) {
+                genres.put(genre.getId(), genre);
+            }
         }
 
         @Override
@@ -151,7 +153,7 @@ class BookServiceImplTest {
         }
     }
 
-    private static final class InMemoryBookDao implements BookDao {
+    private static final class InMemoryBookRepository implements BookRepository {
         private final AtomicLong idGenerator = new AtomicLong(1);
         private final Map<Long, Book> books = new ConcurrentHashMap<>();
 

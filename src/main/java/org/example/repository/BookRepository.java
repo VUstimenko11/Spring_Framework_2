@@ -1,11 +1,11 @@
-package org.example.dao;
+package org.example.repository;
 
 import org.example.domain.Book;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface BookDao {
+public interface BookRepository {
 
     Book insert(Book book);
 

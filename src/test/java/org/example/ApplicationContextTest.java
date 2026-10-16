@@ -1,10 +1,12 @@
 package org.example;
 
-import org.example.dao.AuthorDao;
-import org.example.dao.BookDao;
-import org.example.dao.GenreDao;
+import org.example.repository.AuthorRepository;
+import org.example.repository.BookRepository;
+import org.example.repository.CommentRepository;
+import org.example.repository.GenreRepository;
 import org.example.service.AuthorService;
 import org.example.service.BookService;
+import org.example.service.CommentService;
 import org.example.service.GenreService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,13 +20,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ApplicationContextTest {
 
     @Autowired
-    private BookDao bookDao;
+    private BookRepository bookRepository;
 
     @Autowired
-    private AuthorDao authorDao;
+    private AuthorRepository authorRepository;
 
     @Autowired
-    private GenreDao genreDao;
+    private GenreRepository genreRepository;
+
+    @Autowired
+    private CommentRepository commentRepository;
 
     @Autowired
     private BookService bookService;
@@ -35,15 +40,20 @@ class ApplicationContextTest {
     @Autowired
     private GenreService genreService;
 
+    @Autowired
+    private CommentService commentService;
+
     @Test
     @DisplayName("should load context and initialize schema with seed data")
     void shouldLoadContextAndSeedData() {
-        assertThat(authorDao.findAll()).isNotEmpty();
-        assertThat(genreDao.findAll()).isNotEmpty();
-        assertThat(bookDao.findAll()).isNotEmpty();
+        assertThat(authorRepository.findAll()).isNotEmpty();
+        assertThat(genreRepository.findAll()).isNotEmpty();
+        assertThat(bookRepository.findAll()).isNotEmpty();
+        assertThat(commentRepository.findAll()).isNotEmpty();
 
         assertThat(authorService.findAll()).isNotEmpty();
         assertThat(genreService.findAll()).isNotEmpty();
         assertThat(bookService.findAll()).isNotEmpty();
+        assertThat(commentService.findAll()).isNotEmpty();
     }
 }

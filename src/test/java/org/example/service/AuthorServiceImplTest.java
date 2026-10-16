@@ -1,7 +1,7 @@
 package org.example.service;
 
-import org.example.dao.AuthorDao;
 import org.example.domain.Author;
+import org.example.repository.AuthorRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,13 +19,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @DisplayName("AuthorServiceImpl")
 class AuthorServiceImplTest {
 
-    private InMemoryAuthorDao authorDao;
+    private InMemoryAuthorRepository authorRepository;
     private AuthorServiceImpl authorService;
 
     @BeforeEach
     void setUp() {
-        authorDao = new InMemoryAuthorDao();
-        authorService = new AuthorServiceImpl(authorDao);
+        authorRepository = new InMemoryAuthorRepository();
+        authorService = new AuthorServiceImpl(authorRepository);
     }
 
     @Test
@@ -62,7 +62,7 @@ class AuthorServiceImplTest {
         assertThat(authorService.findAll()).hasSize(2);
     }
 
-    private static final class InMemoryAuthorDao implements AuthorDao {
+    private static final class InMemoryAuthorRepository implements AuthorRepository {
         private final AtomicLong idGenerator = new AtomicLong(1);
         private final Map<Long, Author> authors = new ConcurrentHashMap<>();
 

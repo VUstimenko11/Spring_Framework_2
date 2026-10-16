@@ -1,7 +1,7 @@
 package org.example.service;
 
-import org.example.dao.GenreDao;
 import org.example.domain.Genre;
+import org.example.repository.GenreRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,13 +19,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @DisplayName("GenreServiceImpl")
 class GenreServiceImplTest {
 
-    private InMemoryGenreDao genreDao;
+    private InMemoryGenreRepository genreRepository;
     private GenreServiceImpl genreService;
 
     @BeforeEach
     void setUp() {
-        genreDao = new InMemoryGenreDao();
-        genreService = new GenreServiceImpl(genreDao);
+        genreRepository = new InMemoryGenreRepository();
+        genreService = new GenreServiceImpl(genreRepository);
     }
 
     @Test
@@ -62,7 +62,7 @@ class GenreServiceImplTest {
         assertThat(genreService.findAll()).hasSize(2);
     }
 
-    private static final class InMemoryGenreDao implements GenreDao {
+    private static final class InMemoryGenreRepository implements GenreRepository {
         private final AtomicLong idGenerator = new AtomicLong(1);
         private final Map<Long, Genre> genres = new ConcurrentHashMap<>();
 

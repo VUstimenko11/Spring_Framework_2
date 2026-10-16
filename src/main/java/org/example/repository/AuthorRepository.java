@@ -1,11 +1,11 @@
-package org.example.dao;
+package org.example.repository;
 
 import org.example.domain.Author;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface AuthorDao {
+public interface AuthorRepository {
 
     Author insert(Author author);
 
