@@ -23,7 +23,7 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public Comment insert(String text, long bookId) {
         Book book = bookService.findById(bookId);
-        return commentRepository.insert(new Comment(null, text, book));
+        return commentRepository.save(new Comment(null, text, book));
     }
 
     @Override
@@ -53,7 +53,7 @@ public class CommentServiceImpl implements CommentService {
         Book book = bookService.findById(bookId);
         comment.setText(text);
         comment.setBook(book);
-        commentRepository.update(comment);
+        commentRepository.save(comment);
         return findById(id);
     }
 

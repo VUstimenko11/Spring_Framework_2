@@ -7,16 +7,14 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.Import;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-@Import({BookRepositoryJpa.class, AuthorRepositoryJpa.class, GenreRepositoryJpa.class})
-@DisplayName("BookRepositoryJpa")
-class BookRepositoryJpaTest {
+@DisplayName("BookRepository")
+class BookRepositoryTest {
 
     @Autowired
     private BookRepository bookRepository;
@@ -28,9 +26,9 @@ class BookRepositoryJpaTest {
     private GenreRepository genreRepository;
 
     @Test
-    @DisplayName("should find all books with author and genre joined")
-    void shouldFindAllBooksWithRelations() {
-        List<Book> books = bookRepository.findAll();
+    @DisplayName("should find all books with author and genre joined via custom query")
+    void shouldFindAllWithDetails() {
+        List<Book> books = bookRepository.findAllWithDetails();
 
         assertThat(books).hasSizeGreaterThanOrEqualTo(5);
         assertThat(books.get(0).getAuthor()).isNotNull();
@@ -40,9 +38,9 @@ class BookRepositoryJpaTest {
     }
 
     @Test
-    @DisplayName("should find book by id with relations")
-    void shouldFindBookById() {
-        Book book = bookRepository.findById(1L).orElseThrow();
+    @DisplayName("should find book by id with relations via custom query")
+    void shouldFindByIdWithDetails() {
+        Book book = bookRepository.findByIdWithDetails(1L).orElseThrow();
 
         assertThat(book.getTitle()).isEqualTo("War and Peace");
         assertThat(book.getAuthor().getFullName()).isEqualTo("Leo Tolstoy");
@@ -50,15 +48,21 @@ class BookRepositoryJpaTest {
     }
 
     @Test
-    @DisplayName("should insert book")
-    void shouldInsertBook() {
+    @DisplayName("should return empty optional for unknown id")
+    void shouldReturnEmptyForUnknownId() {
+        assertThat(bookRepository.findByIdWithDetails(-1L)).isEmpty();
+    }
+
+    @Test
+    @DisplayName("should save book")
+    void shouldSaveBook() {
         Author author = authorRepository.findById(1L).orElseThrow();
         Genre genre = genreRepository.findById(1L).orElseThrow();
 
-        Book inserted = bookRepository.insert(new Book(null, "Resurrection", author, genre));
+        Book saved = bookRepository.save(new Book(null, "Resurrection", author, genre));
 
-        assertThat(inserted.getId()).isNotNull();
-        assertThat(bookRepository.findById(inserted.getId()))
+        assertThat(saved.getId()).isNotNull();
+        assertThat(bookRepository.findByIdWithDetails(saved.getId()))
                 .isPresent()
                 .get()
                 .extracting(Book::getTitle)
@@ -70,14 +74,14 @@ class BookRepositoryJpaTest {
     void shouldUpdateBook() {
         Author author = authorRepository.findById(2L).orElseThrow();
         Genre genre = genreRepository.findById(2L).orElseThrow();
-        Book book = bookRepository.insert(new Book(null, "Temp Title", author, genre));
+        Book book = bookRepository.save(new Book(null, "Temp Title", author, genre));
 
         book.setTitle("Updated Title");
         book.setAuthor(authorRepository.findById(1L).orElseThrow());
         book.setGenre(genreRepository.findById(1L).orElseThrow());
-        bookRepository.update(book);
+        bookRepository.save(book);
 
-        Book updated = bookRepository.findById(book.getId()).orElseThrow();
+        Book updated = bookRepository.findByIdWithDetails(book.getId()).orElseThrow();
         assertThat(updated.getTitle()).isEqualTo("Updated Title");
         assertThat(updated.getAuthor().getId()).isEqualTo(1L);
         assertThat(updated.getGenre().getId()).isEqualTo(1L);
@@ -88,10 +92,10 @@ class BookRepositoryJpaTest {
     void shouldDeleteBook() {
         Author author = authorRepository.findById(1L).orElseThrow();
         Genre genre = genreRepository.findById(1L).orElseThrow();
-        Book book = bookRepository.insert(new Book(null, "To Delete", author, genre));
+        Book book = bookRepository.save(new Book(null, "To Delete", author, genre));
 
         bookRepository.deleteById(book.getId());
 
-        assertThat(bookRepository.findById(book.getId())).isEmpty();
+        assertThat(bookRepository.findByIdWithDetails(book.getId())).isEmpty();
     }
 }

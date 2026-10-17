@@ -27,20 +27,20 @@ public class BookServiceImpl implements BookService {
     public Book insert(String title, long authorId, long genreId) {
         Author author = authorService.findById(authorId);
         Genre genre = genreService.findById(genreId);
-        return bookRepository.insert(new Book(null, title, author, genre));
+        return bookRepository.save(new Book(null, title, author, genre));
     }
 
     @Override
     @Transactional(readOnly = true)
     public Book findById(long id) {
-        return bookRepository.findById(id)
+        return bookRepository.findByIdWithDetails(id)
                 .orElseThrow(() -> new EntityNotFoundException("Book not found: id=" + id));
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Book> findAll() {
-        return bookRepository.findAll();
+        return bookRepository.findAllWithDetails();
     }
 
     @Override
@@ -52,7 +52,7 @@ public class BookServiceImpl implements BookService {
         book.setTitle(title);
         book.setAuthor(author);
         book.setGenre(genre);
-        bookRepository.update(book);
+        bookRepository.save(book);
         return findById(id);
     }
 

@@ -5,7 +5,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.Import;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,20 +12,19 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-@Import(AuthorRepositoryJpa.class)
-@DisplayName("AuthorRepositoryJpa")
-class AuthorRepositoryJpaTest {
+@DisplayName("AuthorRepository")
+class AuthorRepositoryTest {
 
     @Autowired
     private AuthorRepository authorRepository;
 
     @Test
-    @DisplayName("should insert author and return generated id")
-    void shouldInsertAuthor() {
-        Author inserted = authorRepository.insert(new Author(null, "Alexander Pushkin"));
+    @DisplayName("should save author and return generated id")
+    void shouldSaveAuthor() {
+        Author saved = authorRepository.save(new Author(null, "Alexander Pushkin"));
 
-        assertThat(inserted.getId()).isNotNull();
-        assertThat(authorRepository.findById(inserted.getId()))
+        assertThat(saved.getId()).isNotNull();
+        assertThat(authorRepository.findById(saved.getId()))
                 .isPresent()
                 .get()
                 .extracting(Author::getFullName)
@@ -46,10 +44,10 @@ class AuthorRepositoryJpaTest {
     @Test
     @DisplayName("should update author")
     void shouldUpdateAuthor() {
-        Author author = authorRepository.insert(new Author(null, "Old Name"));
+        Author author = authorRepository.save(new Author(null, "Old Name"));
         author.setFullName("New Name");
 
-        authorRepository.update(author);
+        authorRepository.save(author);
 
         assertThat(authorRepository.findById(author.getId()))
                 .isPresent()
@@ -61,7 +59,7 @@ class AuthorRepositoryJpaTest {
     @Test
     @DisplayName("should delete author by id")
     void shouldDeleteAuthor() {
-        Author author = authorRepository.insert(new Author(null, "To Delete"));
+        Author author = authorRepository.save(new Author(null, "To Delete"));
 
         authorRepository.deleteById(author.getId());
 

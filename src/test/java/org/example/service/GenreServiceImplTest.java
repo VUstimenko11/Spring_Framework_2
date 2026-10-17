@@ -1,32 +1,22 @@
 package org.example.service;
 
 import org.example.domain.Genre;
-import org.example.repository.GenreRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+@DataJpaTest
+@Import(GenreServiceImpl.class)
 @DisplayName("GenreServiceImpl")
 class GenreServiceImplTest {
 
-    private InMemoryGenreRepository genreRepository;
+    @Autowired
     private GenreServiceImpl genreService;
-
-    @BeforeEach
-    void setUp() {
-        genreRepository = new InMemoryGenreRepository();
-        genreService = new GenreServiceImpl(genreRepository);
-    }
 
     @Test
     @DisplayName("should insert genre")
@@ -40,9 +30,9 @@ class GenreServiceImplTest {
     @Test
     @DisplayName("should find genre by id")
     void shouldFindById() {
-        Genre created = genreService.insert("Novel");
+        Genre created = genreService.insert("Novel-Extra");
 
-        assertThat(genreService.findById(created.getId()).getName()).isEqualTo("Novel");
+        assertThat(genreService.findById(created.getId()).getName()).isEqualTo("Novel-Extra");
     }
 
     @Test
@@ -54,45 +44,12 @@ class GenreServiceImplTest {
     }
 
     @Test
-    @DisplayName("should find all genres")
+    @DisplayName("should find all genres including newly inserted")
     void shouldFindAll() {
+        int before = genreService.findAll().size();
         genreService.insert("A");
         genreService.insert("B");
 
-        assertThat(genreService.findAll()).hasSize(2);
-    }
-
-    private static final class InMemoryGenreRepository implements GenreRepository {
-        private final AtomicLong idGenerator = new AtomicLong(1);
-        private final Map<Long, Genre> genres = new ConcurrentHashMap<>();
-
-        @Override
-        public Genre insert(Genre genre) {
-            long id = idGenerator.getAndIncrement();
-            Genre stored = new Genre(id, genre.getName());
-            genres.put(id, stored);
-            genre.setId(id);
-            return stored;
-        }
-
-        @Override
-        public Optional<Genre> findById(long id) {
-            return Optional.ofNullable(genres.get(id));
-        }
-
-        @Override
-        public List<Genre> findAll() {
-            return new ArrayList<>(genres.values());
-        }
-
-        @Override
-        public void update(Genre genre) {
-            genres.put(genre.getId(), new Genre(genre.getId(), genre.getName()));
-        }
-
-        @Override
-        public void deleteById(long id) {
-            genres.remove(id);
-        }
+        assertThat(genreService.findAll()).hasSize(before + 2);
     }
 }

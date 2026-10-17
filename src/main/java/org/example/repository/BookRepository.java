@@ -1,19 +1,28 @@
 package org.example.repository;
 
 import org.example.domain.Book;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface BookRepository {
+public interface BookRepository extends JpaRepository<Book, Long> {
 
-    Book insert(Book book);
+    @Query("""
+            select distinct b from Book b
+            join fetch b.author
+            join fetch b.genre
+            where b.id = :id
+            """)
+    Optional<Book> findByIdWithDetails(@Param("id") Long id);
 
-    Optional<Book> findById(long id);
-
-    List<Book> findAll();
-
-    void update(Book book);
-
-    void deleteById(long id);
+    @Query("""
+            select distinct b from Book b
+            join fetch b.author
+            join fetch b.genre
+            order by b.id
+            """)
+    List<Book> findAllWithDetails();
 }

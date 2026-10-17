@@ -1,21 +1,11 @@
 package org.example.repository;
 
 import org.example.domain.Comment;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
-import java.util.Optional;
 
-public interface CommentRepository {
+public interface CommentRepository extends JpaRepository<Comment, Long> {
 
-    Comment insert(Comment comment);
-
-    Optional<Comment> findById(long id);
-
-    List<Comment> findAll();
-
-    List<Comment> findByBookId(long bookId);
-
-    void update(Comment comment);
-
-    void deleteById(long id);
+    List<Comment> findByBookId(Long bookId);
 }

@@ -1,32 +1,22 @@
 package org.example.service;
 
 import org.example.domain.Author;
-import org.example.repository.AuthorRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+@DataJpaTest
+@Import(AuthorServiceImpl.class)
 @DisplayName("AuthorServiceImpl")
 class AuthorServiceImplTest {
 
-    private InMemoryAuthorRepository authorRepository;
+    @Autowired
     private AuthorServiceImpl authorService;
-
-    @BeforeEach
-    void setUp() {
-        authorRepository = new InMemoryAuthorRepository();
-        authorService = new AuthorServiceImpl(authorRepository);
-    }
 
     @Test
     @DisplayName("should insert author")
@@ -54,45 +44,12 @@ class AuthorServiceImplTest {
     }
 
     @Test
-    @DisplayName("should find all authors")
+    @DisplayName("should find all authors including newly inserted")
     void shouldFindAll() {
+        int before = authorService.findAll().size();
         authorService.insert("A");
         authorService.insert("B");
 
-        assertThat(authorService.findAll()).hasSize(2);
-    }
-
-    private static final class InMemoryAuthorRepository implements AuthorRepository {
-        private final AtomicLong idGenerator = new AtomicLong(1);
-        private final Map<Long, Author> authors = new ConcurrentHashMap<>();
-
-        @Override
-        public Author insert(Author author) {
-            long id = idGenerator.getAndIncrement();
-            Author stored = new Author(id, author.getFullName());
-            authors.put(id, stored);
-            author.setId(id);
-            return stored;
-        }
-
-        @Override
-        public Optional<Author> findById(long id) {
-            return Optional.ofNullable(authors.get(id));
-        }
-
-        @Override
-        public List<Author> findAll() {
-            return new ArrayList<>(authors.values());
-        }
-
-        @Override
-        public void update(Author author) {
-            authors.put(author.getId(), new Author(author.getId(), author.getFullName()));
-        }
-
-        @Override
-        public void deleteById(long id) {
-            authors.remove(id);
-        }
+        assertThat(authorService.findAll()).hasSize(before + 2);
     }
 }
