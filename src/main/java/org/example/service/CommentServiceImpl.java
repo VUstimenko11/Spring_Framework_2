@@ -29,21 +29,27 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional(readOnly = true)
     public Comment findById(long id) {
-        return commentRepository.findById(id)
+        Comment comment = commentRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Comment not found: id=" + id));
+        initializeBook(comment);
+        return comment;
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Comment> findAll() {
-        return commentRepository.findAll();
+        List<Comment> comments = commentRepository.findAll();
+        comments.forEach(this::initializeBook);
+        return comments;
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Comment> findByBookId(long bookId) {
         bookService.findById(bookId);
-        return commentRepository.findByBookId(bookId);
+        List<Comment> comments = commentRepository.findByBookId(bookId);
+        comments.forEach(this::initializeBook);
+        return comments;
     }
 
     @Override
@@ -62,5 +68,9 @@ public class CommentServiceImpl implements CommentService {
     public void deleteById(long id) {
         findById(id);
         commentRepository.deleteById(id);
+    }
+
+    private void initializeBook(Comment comment) {
+        comment.getBook().getId();
     }
 }

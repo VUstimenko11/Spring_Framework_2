@@ -67,5 +67,18 @@ class GenreCommandsTest {
         public List<Genre> findAll() {
             return new ArrayList<>(genres.values());
         }
+
+        @Override
+        public Genre update(long id, String name) {
+            Genre genre = findById(id);
+            genre.setName(name);
+            return genre;
+        }
+
+        @Override
+        public void deleteById(long id) {
+            findById(id);
+            genres.remove(id);
+        }
     }
 }

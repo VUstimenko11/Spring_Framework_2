@@ -52,4 +52,26 @@ class GenreServiceImplTest {
 
         assertThat(genreService.findAll()).hasSize(before + 2);
     }
+
+    @Test
+    @DisplayName("should update genre")
+    void shouldUpdate() {
+        Genre created = genreService.insert("Old Genre");
+
+        Genre updated = genreService.update(created.getId(), "New Genre");
+
+        assertThat(updated.getName()).isEqualTo("New Genre");
+        assertThat(genreService.findById(created.getId()).getName()).isEqualTo("New Genre");
+    }
+
+    @Test
+    @DisplayName("should delete genre")
+    void shouldDelete() {
+        Genre created = genreService.insert("To Delete");
+
+        genreService.deleteById(created.getId());
+
+        assertThatThrownBy(() -> genreService.findById(created.getId()))
+                .isInstanceOf(EntityNotFoundException.class);
+    }
 }

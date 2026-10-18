@@ -52,4 +52,26 @@ class AuthorServiceImplTest {
 
         assertThat(authorService.findAll()).hasSize(before + 2);
     }
+
+    @Test
+    @DisplayName("should update author")
+    void shouldUpdate() {
+        Author created = authorService.insert("Old Name");
+
+        Author updated = authorService.update(created.getId(), "New Name");
+
+        assertThat(updated.getFullName()).isEqualTo("New Name");
+        assertThat(authorService.findById(created.getId()).getFullName()).isEqualTo("New Name");
+    }
+
+    @Test
+    @DisplayName("should delete author")
+    void shouldDelete() {
+        Author created = authorService.insert("To Delete");
+
+        authorService.deleteById(created.getId());
+
+        assertThatThrownBy(() -> authorService.findById(created.getId()))
+                .isInstanceOf(EntityNotFoundException.class);
+    }
 }

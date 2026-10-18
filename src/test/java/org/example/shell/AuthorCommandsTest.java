@@ -67,5 +67,18 @@ class AuthorCommandsTest {
         public List<Author> findAll() {
             return new ArrayList<>(authors.values());
         }
+
+        @Override
+        public Author update(long id, String fullName) {
+            Author author = findById(id);
+            author.setFullName(fullName);
+            return author;
+        }
+
+        @Override
+        public void deleteById(long id) {
+            findById(id);
+            authors.remove(id);
+        }
     }
 }

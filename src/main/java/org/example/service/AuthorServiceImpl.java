@@ -34,4 +34,19 @@ public class AuthorServiceImpl implements AuthorService {
     public List<Author> findAll() {
         return authorRepository.findAll();
     }
+
+    @Override
+    @Transactional
+    public Author update(long id, String fullName) {
+        Author author = findById(id);
+        author.setFullName(fullName);
+        return authorRepository.save(author);
+    }
+
+    @Override
+    @Transactional
+    public void deleteById(long id) {
+        findById(id);
+        authorRepository.deleteById(id);
+    }
 }

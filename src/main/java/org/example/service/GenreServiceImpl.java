@@ -34,4 +34,19 @@ public class GenreServiceImpl implements GenreService {
     public List<Genre> findAll() {
         return genreRepository.findAll();
     }
+
+    @Override
+    @Transactional
+    public Genre update(long id, String name) {
+        Genre genre = findById(id);
+        genre.setName(name);
+        return genreRepository.save(genre);
+    }
+
+    @Override
+    @Transactional
+    public void deleteById(long id) {
+        findById(id);
+        genreRepository.deleteById(id);
+    }
 }
